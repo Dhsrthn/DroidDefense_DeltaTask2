@@ -143,6 +143,7 @@ class player{
             ctx.stroke()
         }
         if(this.laser){
+            
             this.lasertimer-=1
             if(this.lasertimer>0){
                 this.laseraction()
@@ -594,6 +595,7 @@ class base_enemy{
         this.health=health
         this.temp=speed
         this.damage=damage
+        this.max=health
     }
 
     draw(){
@@ -650,6 +652,7 @@ class base_enemy{
        else{
         this.class=2
        }
+       this.healthbar()
     }
 
     targetlocation(){
@@ -708,6 +711,12 @@ class base_enemy{
     offscreen(bullet){
         return (bullet.x+(bullet.radius)>this.player.boundxe || bullet.y+(bullet.radius)>this.player.boundye || bullet.x-(bullet.radius)<this.player.topx || bullet.y-(bullet.radius)<this.player.topy)
     }
+    healthbar(){
+        ctx.strokeRect(this.x-this.radius,this.y+this.radius,2*this.radius,0.2*this.radius)
+        ctx.fillStyle='red'
+        
+        ctx.fillRect(this.x-this.radius,this.y+this.radius,(this.health/this.max)*(2*this.radius),0.2*this.radius)
+    }
 
    
 }
@@ -750,6 +759,7 @@ class homing_melee{
         this.health=100
         this.class=3
         this.damage=damage
+        this.max=100
         
     }
     draw(){
@@ -773,6 +783,7 @@ class homing_melee{
             this.c=2
         }
         this.movement()
+        this.healthbar()
 
     }
 
@@ -792,6 +803,12 @@ class homing_melee{
                 this.speed=0
                 this.home.health-=this.damage
             }
+    }
+    healthbar(){
+        ctx.strokeRect(this.x-this.radius,this.y+this.radius,2*this.radius,0.2*this.radius)
+        ctx.fillStyle='red'
+        
+        ctx.fillRect(this.x-this.radius,this.y+this.radius,(this.health/this.max)*(2*this.radius),0.2*this.radius)
     }
 }
 
@@ -821,7 +838,7 @@ class boss{
     }
 
     draw(){
-        console.log(this.health)
+       
         this.bossimg=document.createElement('img')
         this.bossimg.src='files/enemyboss.png'
         ctx.save()
@@ -861,12 +878,9 @@ class boss{
 
     movement(){
         this.angletravel=Math.atan2(this.targety-this.y,this.targetx-this.x)
-        console.log(this.angletravel)
-        console.log(this.x,this.y)
-        console.log(this.speed)
-        console.log(this.speed*(Math.cos(this.angletravel)))
+       
         this.x+=this.speed*(Math.cos(this.angletravel))
-        console.log(this.x)
+      
         this.y+=this.speed*(Math.sin(this.angletravel))
         if(this.targetx-this.x < 1.5 && this.targety-this.y < 1.5){    
             this.targetx=this.x
@@ -955,9 +969,9 @@ class boss{
     healthbar(){
         ctx.strokeRect(this.x-this.radius,this.y+this.radius,2*this.radius,0.2*this.radius)
         ctx.fillStyle='red'
-        console.log('j')
+        
         ctx.fillRect(this.x-this.radius,this.y+this.radius,(this.health/this.maxhealthboss)*(2*this.radius),0.2*this.radius)
-        console.log('j')
+       
     }
 
 
@@ -1030,6 +1044,7 @@ class homing_enemy{
         this.temp=speed
         this.health=health
         this.class=4
+        this.max=health
     }
     draw(){
         this.homoenemy=document.createElement('img')
@@ -1067,6 +1082,7 @@ class homing_enemy{
             }
             bullety.draw()
         })
+        this.healthbar()
     }
 
     targetlocation(){
@@ -1098,6 +1114,12 @@ class homing_enemy{
     }
     offscreen(bullet){
         return (bullet.x+(bullet.radius)>this.player.boundxe || bullet.y+(bullet.radius)>this.player.boundye || bullet.x-(bullet.radius)<this.player.topx || bullet.y-(bullet.radius)<this.player.topy)
+    }
+    healthbar(){
+        ctx.strokeRect(this.x-this.radius,this.y+this.radius,2*this.radius,0.2*this.radius)
+        ctx.fillStyle='red'
+        
+        ctx.fillRect(this.x-this.radius,this.y+this.radius,(this.health/this.max)*(2*this.radius),0.2*this.radius)
     }
 }
 
@@ -1135,11 +1157,11 @@ let selfimg=document.createElement('img')
 let earthhealimg=document.createElement('img')
 laserimg.src='files/laser.png'
 selfimg.src='files/selfheal.png'
-earthhealingimg.src='files/baseheal.png'
+earthhealimg.src='files/baseheal.png'
 
 
 class spawnables{
-    constructor(x,y,type,radius,player,collision,img){
+    constructor(x,y,type,radius,player,collision,img,home){
         this.x=x
         this.y=y
         this.type=type
@@ -1147,6 +1169,8 @@ class spawnables{
         this.player=player
         this.collision=collision
         this.img=img
+        this.eaten=false
+        this.home=home
     }
     draw(){
         switch(this.type){
@@ -1158,7 +1182,10 @@ class spawnables{
                 ctx.closePath()
                 if(this.collision(this.player.x,this.player.y,this.player.radius,this.x,this.y,this.radius)){
                     this.player.health+=50
+                    this.eaten=true
                 }
+                
+                break
             case 2:
                 ctx.save()
                 ctx.beginPath()
@@ -1166,9 +1193,12 @@ class spawnables{
                 ctx.drawImage(this.img, this.x - this.radius, this.y - this.radius,  this.radius * 2, this.radius * 2)
                 ctx.closePath()
                 if(this.collision(this.player.x,this.player.y,this.player.radius,this.x,this.y,this.radius)){
-                    this.home.health+=(this.max-this.health)*0.5
+                    this.home.health+=(this.home.max-this.home.health)*0.5
+                    this.eaten=true
                 }
-            case 2:
+                
+                break
+            case 3:
                 ctx.save()
                 ctx.beginPath()
                 ctx.arc(this.x,this.y,this.radius,0,2*Math.PI)
@@ -1176,7 +1206,9 @@ class spawnables{
                 ctx.closePath()
                 if(this.collision(this.player.x,this.player.y,this.player.radius,this.x,this.y,this.radius)){
                     this.player.laser=true
+                    this.eaten=true
                 }
+                break
 
         }
     }
@@ -1199,12 +1231,34 @@ let start=0
 
 function main(){
    if(gameover){
-    console.log(score)
-    highscoreupdate()
-    resetvariables()
+    // console.log('l')
+    // window.cancelAnimationFrame(request)
+    // window.removeEventListener("keydown",Player1.keydown)
+    // window.removeEventListener("keyup",Player1.keyup);
+    // window.removeEventListener("mousemove",Player1.getmousecoord.bind(Player1))
+    // window.removeEventListener("mousedown",Player1.mousedown)
+    // window.removeEventListener("mouseup",Player1.mouseup)
+    // Player1.up=false
+    // Player1.down=false
+    // Player1.left=false
+    // Player1.right=false
+    // Player1.shootpressed=false
+    // Player1.selfheal=false
+    // Player1.healthpressed=false
+    // ctx.fillStyle='rgba(128,128,128,0.25)'
+    // ctx.fillRect(0,0,window.innerWidth,window.innerHeight)
     
-    console.log(leadership)
-    start=0
+    highscoreupdate()
+    gameoverscreen()
+    start=2
+   
+   
+   
+    
+   // resetvariables()
+    
+   
+    
    }
 
   if(start==0){
@@ -1289,6 +1343,7 @@ function gamelogic(){
     }
     checkgameover()
     high()
+    addspawnables()
 }
 
 function gamepretty(){
@@ -1319,6 +1374,9 @@ function gamepretty(){
         bossarray[bosskilled].draw()
         Max_Count=6
         Max_melee=2
+    }
+    if(spawned){
+        spawnpowerups[0].draw()
     }
 
 }
@@ -1442,6 +1500,7 @@ function checkdeath(){
             Player1.gun1.maxearth+=50
             Player1.healable+=2
             Player1.lasertimer+=50
+            letboss=0
         }
     }
     
@@ -1609,6 +1668,7 @@ function getcoord(e){
     checkfrontpage()
     instructions()
     leaderboarddisp()
+    console.log(gameover)
 }
 
 let instructionscalled=0
@@ -1656,6 +1716,20 @@ function checkfrontpage(){
                 hold+=1
             }
             leaderboardcalled=0
+        }
+    }
+    
+    if(gameover){
+        console.log('hello')
+        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20+175 && ycoord<11* height/20 +325){
+            gameclick=1
+            console.log('hello')
+        }
+        if(gameclick==1){
+            resetvariables()
+            start=0
+            gameover=false
+            gameclick=0
         }
     }
 }
@@ -1720,9 +1794,56 @@ function instructions(){
 
     if(instructionscalled==1){
         ctx.fillStyle='black'
+        ctx.strokeStyle='rgba(0,0,255,0.75)'
         ctx.strokeRect(x/8,y/8,6*x/8,6*y/8)
         ctx.fillRect(x/8,y/8,6*x/8,6*y/8)
         ctx.strokeRect(7*x/16,6*y/8,x/8,y/16)
+        ctx.fillStyle='blue'
+        ctx.font=x/63+'px retro'
+        ctx.fillText('Instructions',x/4,y/4,x/2)
+        ctx.font=x/126+'px retro'
+        ctx.fillStyle='rgba(255,255,255,0.75)'
+        ctx.fillText('W',3*x/16,5*y/16,x/16)
+        ctx.fillText('A',3*x/16,7*y/16,x/16)
+        ctx.fillText('S',3*x/16,9*y/16,x/16)
+        ctx.fillText('D',3*x/16,11*y/16,x/16)
+        ctx.fillText('Left Click',x/2,5*y/16,x/8)
+        ctx.fillText('Right Click',x/2,7*y/16,x/8)
+        ctx.fillText('R',x/2,9*y/16,x/8)
+        
+
+        ctx.fillStyle='rgba(255,255,255,0.50)'
+        ctx.font=x/180+'px retro'
+        ctx.fillText('-to move up',3*x/16+x/16,5*y/16)
+        ctx.fillText('-to move left',3*x/16+x/16,7*y/16)
+        ctx.fillText('-to move down',3*x/16+x/16,9*y/16)
+        ctx.fillText('-to move right',3*x/16+x/16,11*y/16)
+        ctx.fillText('-to shoot',x/2+x/8,5*y/16)
+        ctx.font=x/215+'px retro'
+        //right
+        ctx.fillText('-hold to charge and ',x/2+x/8,7*y/16)
+        ctx.fillText('relase to shoot health shots',x/2,7.5*y/16)
+        ctx.fillText('which can heal player base',x/2,8*y/16)
+        //r
+        ctx.fillText('-hold to charge and ',x/2+x/8,9*y/16)
+        ctx.fillText('relase to heal player',x/2,9.5*y/16)
+        ctx.fillStyle='rgba(255,255,255,0.75)'
+        ctx.fillText('Spacebar to pause and play',x/2,10.25*y/16)
+        ctx.font=x/210+'px retro'
+        ctx.fillText('Game Over when Base health is 0',x/2,11*y/16)
+        ctx.fillText('or when player loses all lives',x/2,11.5*y/16)
+
+        if(start==0){
+            ctx.font=x/84+'px retro'
+            ctx.fillStyle='blue'
+            ctx.fillText('Back',7*x/16+20,25*y/32+20,x/8-20)
+        }
+        else{
+            ctx.font=x/84+'px retro'
+            ctx.fillStyle='blue'
+            ctx.fillText('Resume',7*x/16+20,25*y/32+20,x/8-20)
+        }
+
     }    
 }
 
@@ -1797,6 +1918,7 @@ function resetvariables(){
     bossarray=[]
     tempmax=10
     tempmel=3
+    gameclick=0
 }
 
 let leadership=[0,0,0,0,0]
@@ -1825,4 +1947,64 @@ function highscoreupdate(){
         localStorage.setItem(localhigh[i],JSON.stringify(leadership[i]))
     }
 }
+let spawned=false
+let spawncheck=0
+let spawnpowerups=[]
+let timer
+let typespawn
 
+function addspawnables(){
+    if(!spawned){
+        if(spawncheck==0){
+            timer=Math.random()*1000 + 4000
+            spawncheck=1
+        }   
+        timer-=1
+    }
+    if(timer<0 && !spawned){
+       typespawn=Math.floor(Math.random()*3)+1
+       
+        switch(typespawn){
+            case 1:
+                 arrrayspan=randomlocation()
+                spawnpowerups.push(new spawnables(arrrayspan[0],arrrayspan[1],1,x/100,Player1,collision,selfimg,home_base))
+                break;
+            case 2:
+                arrrayspan=randomlocation()
+                spawnpowerups.push(new spawnables(arrrayspan[0],arrrayspan[1],2,x/100,Player1,collision,earthhealimg,home_base))
+                break;
+             case 3:
+                arrrayspan=randomlocation()
+                spawnpowerups.push(new spawnables(arrrayspan[0],arrrayspan[1],3,x/100,Player1,collision,laserimg,home_base))
+                break;
+        }
+        spawned=true
+    }
+    if(spawned && spawnpowerups[0].eaten==true){
+        
+        spawnpowerups.pop()
+        spawned=false
+        spawncheck=0
+    }
+}
+let gameclick=0
+function gameoverscreen(){
+    ctx.fillStyle='black'
+    ctx.fillRect(0,0,window.innerWidth,window.innerHeight)
+    ctx.strokeStyle='rgba(0,0,255,0.75)'
+    ctx.strokeRect(x/8,y/8,6*x/8,6*y/8)
+    ctx.fillStyle='black'
+    ctx.strokeRect(x/8,y/8,6*x/8,6*y/8)
+    ctx.fillStyle='blue'
+    ctx.font=x/60+'px retro'
+    ctx.fillText('GAME OVER',x/4,y/4,x/2)
+    ctx.strokeStyle='rgba(0,0,255,0.75)'
+    ctx.strokeRect(x/3,11*y/20+175,x/3,150)
+    ctx.font='100px retro'
+    ctx.fillStyle='rgba(0,0,255,0.50)'
+    ctx.fillText('Play Again',12.5+x/3+10,11*y/20+315,x/3-25)
+   
+
+
+
+}
