@@ -61,16 +61,16 @@ class player{
         this.topy=topby
         this.gunwidth=w
         this.gunheight=h
-        this.health=100
+        this.health=health
+        this.maxhealth=health
         this.home=home
         this.collision=collision
-        this.health=health
         this.enemies=enemies
         this.damage=damage
         this.regen=regen
         this.selfhealmeter=0
         this.gun1= new gun(this,this.x,this.y,this.gunwidth,this.gunheight,this.angle,this.shootpressed,20,this.healthpressed,this.home)
-        this.boss=boss
+
 
         window.addEventListener("keydown",this.keydown);
         window.addEventListener("keyup",this.keyup);
@@ -80,7 +80,7 @@ class player{
     }
 
     draw(ctx){
-        
+        console.log(this.health)
         this.movement()
         this.playerimg=document.createElement('img')
         this.playerimg.src='files/player.png'
@@ -94,8 +94,8 @@ class player{
         ctx.restore()
         this.gun1.draw()
         this.healthbar()
-        if(this.health>100){
-            this.health=100
+        if(this.health>this.maxhealth){
+            this.health=this.maxhealth
         }
         if(this.regen>100){
             this.regen=100
@@ -228,7 +228,7 @@ class player{
 
     healthbar(){
         ctx.fillStyle='green'
-        ctx.fillRect(window.innerWidth/50,this.home.y+this.home.radius,this.health*0.01*(this.radius*3),this.radius*0.5)
+        ctx.fillRect(window.innerWidth/50,this.home.y+this.home.radius,(this.health/this.maxhealth)*(this.radius*3),this.radius*0.5)
         ctx.strokeStyle='white'
         ctx.strokeRect(window.innerWidth/50,this.home.y+this.home.radius,(this.radius*3),this.radius*0.5)
         this.diff=( window.innerHeight-window.innerWidth/100-this.home.y+this.home.radius/2) /3
@@ -771,6 +771,7 @@ class boss{
     }
 
     draw(){
+        console.log(this.health)
         this.bossimg=document.createElement('img')
         this.bossimg.src='files/enemyboss.png'
         ctx.save()
@@ -1079,6 +1080,7 @@ let start=0
 
 
 function main(){
+    console.log(x,y)
    if(gameover){
     if(confirm("you've lost press ok to restart")){
         
@@ -1090,6 +1092,7 @@ function main(){
     startbackground()
     staticscreen()
     instructions()
+    leaderboarddisp()
   }
   if(start==1){
     gamelogic()
@@ -1114,7 +1117,7 @@ enemy1=[]
 enemy2=[]
 enemy3=[]
 enemy4=[]
-let Player1 = new player(x/2,y/2,x/50,x/100,x/50,10,x-(x/100),home_base.y+home_base.radius/3,x/100,x/100,home_base,collision,100,enemyarray,damage,100)
+let Player1 = new player(x/2,y/2,x/50,x/100,x/50,10,x-(x/100),home_base.y+home_base.radius/3,x/100,x/100,home_base,collision,200,enemyarray,damage,100)
 let firsttime=0
 let Max_Count=10
 let Max_melee=3
@@ -1123,9 +1126,9 @@ let melee_count=0
 let ecount=0
 let score=0
 let homecount=0
-let bosscount=0
+let bosscount=5
 let bossspawned=false
-let boss_enemy= new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,1500)
+let boss_enemy= new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,10)
 let lives=[1,1,1,1,1]
 let lifecount=5
 
@@ -1149,6 +1152,8 @@ function gamelogic(){
         bossspawned=true
     }
     checkgameover()
+   
+
     
 }
 
@@ -1277,7 +1282,11 @@ function checkdeath(){
     if(Player1.health<0){
         lifecount-=1
         lives[lifecount]=0
-        Player1.health=100
+        Player1.health=Player1.maxhealth
+    }
+    if(boss_enemy.health<0){
+        bossspawned=false
+        bosscount+=1
     }
 }
 
@@ -1359,6 +1368,26 @@ let value2=255
 let value3=255
 
 function drawStars(stars) {
+    if(bossspawned){
+        value2-=1
+        value3-=1
+        if(value2<0){
+            value2=0
+        }
+        if(value3<0){
+            value3=0
+        }
+    }
+    else{
+        value2+=1
+        value3+=1
+        if(value2>255){
+            value2=255
+        }
+        if(value3>255){
+            value3=255
+        }
+    }
 
     stars.forEach(star => {
         ctx.beginPath();
@@ -1421,11 +1450,11 @@ function getcoord(e){
     }
     checkfrontpage()
     instructions()
-   
+    leaderboarddisp()
 }
 
 let instructionscalled=0
-let leadercalled=0
+let leaderboardcalled=0
 
 function checkfrontpage(){
     let height=window.innerHeight
@@ -1441,7 +1470,9 @@ function checkfrontpage(){
             instructionscalled=1
         }
         //leaderboard
-        
+        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20+350 && ycoord<11* height/20 +500){
+            leaderboardcalled=1
+        }
            
     }
      
@@ -1458,11 +1489,17 @@ function checkfrontpage(){
                 hold+=1
             }
             instructionscalled=0
-
-
         }
     }
-   
+    if(leaderboardcalled==1){
+        if(xcoord>7*x/16 && xcoord<9*x/16 && ycoord> 6*y/8 && ycoord<13*y/16 ){
+            if(pause){
+                playgame()
+                hold+=1
+            }
+            leaderboardcalled=0
+        }
+    }
 }
 
 function mousecoordinate(e){
@@ -1531,3 +1568,12 @@ function instructions(){
     }    
 }
 
+function leaderboarddisp(){
+    if(leaderboardcalled==1){
+        ctx.fillStyle='black'
+        ctx.strokeRect(x/8,y/8,6*x/8,6*y/8)
+        ctx.fillRect(x/8,y/8,6*x/8,6*y/8)
+        ctx.strokeRect(7*x/16,6*y/8,x/8,y/16)
+
+    }
+}
