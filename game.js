@@ -93,13 +93,12 @@ class player{
         ctx.save()
         ctx.beginPath()
         ctx.arc(this.x,this.y,this.radius,0,2*Math.PI)
-        
-        
         ctx.drawImage(this.playerimg, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2)
         ctx.closePath()
         ctx.restore()
         this.gun1.draw()
         this.healthbar()
+
         if(this.health>this.maxhealth){
             this.health=this.maxhealth
         }
@@ -317,6 +316,7 @@ class gun{
             }
             bullet.draw()
          })
+
         this.bullets.forEach((bullet)=>{
             if(typeof(this.player.enemies[0].length)=='number'){
                 for(let i=0; i <this.player.enemies[0].length;i++){
@@ -362,10 +362,6 @@ class gun{
                     }
                 }
             }
-            
-            
-            
-            
         })
 
         this.healthbullets.forEach((pellet)=>{
@@ -382,9 +378,7 @@ class gun{
                 this.home.health=this.home.health+pellet.healed
 
             }
-        }
-            
-        )
+        })
 
         this.rotate()
 
@@ -418,27 +412,19 @@ class gun{
     }
 
     fire(){
-        
-            let speed=20
-            
-            
-            
-            if(this.firsttime==0){
-                this.bullets.push(new bullet(this.x,this.y,speed,this.width,this.rotateang,this.player))
-                this.firsttime=1
-                this.timetill=this.delay
-            }
-            
-            if(this.timetill<=0){
-                this.bullets.push(new bullet(this.x,this.y,speed,this.width,this.rotateang,this.player))
-                this.timetill=this.delay
-            }
+        let speed=20
+        if(this.firsttime==0){
+            this.bullets.push(new bullet(this.x,this.y,speed,this.width,this.rotateang,this.player))
+            this.firsttime=1
+            this.timetill=this.delay
+        }
+        if(this.timetill<=0){
+            this.bullets.push(new bullet(this.x,this.y,speed,this.width,this.rotateang,this.player))
+            this.timetill=this.delay
+        }
             this.timetill-=1
-            
-        
     }
 
-    
     offscreen(bullet){
         return (bullet.x+(bullet.radius)>this.player.boundxe || bullet.y+(bullet.radius)>this.player.boundye || bullet.x-(bullet.radius)<this.player.topx || bullet.y-(bullet.radius)<this.player.topy)
     }
@@ -446,16 +432,12 @@ class gun{
     healthfire(){
         let speed=7
         if(this.healthpress){
-
             if(this.player.regen>10){
                 this.healthmeter+=1
                 this.bulletadd=true
-                
             }
             else{
-                
                 this.maxhealmeter=(this.player.regen/10)*150
-        
                 this.healthmeter+=1
                 if(this.healthmeter>this.maxhealmeter){
                     this.healthmeter=this.maxhealmeter
@@ -570,9 +552,6 @@ class home{
          ctx.strokeStyle='white'
          ctx.strokeRect(this.x-this.radius-2*window.innerWidth/100+(window.innerHeight/1000),this.y+this.radius,(this.health/this.max)*(4*window.innerWidth/100+2*this.radius-(window.innerHeight/1000)),(4*window.innerWidth/100+2*this.radius-(window.innerHeight/1000))/7)
     }
-
-    
-
 }
 
 class base_enemy{
@@ -660,10 +639,6 @@ class base_enemy{
         let yh=window.innerHeight
         this.targetx=(3*xw)/100 + (Math.random() * ((94*xw)/100))
         this.targety=(3*xw)/100 + (Math.random() * ((yh/1.2)-(x/10)))
-        
-            
-        
-
     }
     movement(){
         this.angletravel=Math.atan2(this.targety-this.y,this.targetx-this.x) 
@@ -680,8 +655,6 @@ class base_enemy{
                 this.waittime=this.delay
             }   
          }
-
-        
     }
 
     target(){
@@ -811,8 +784,6 @@ class homing_melee{
         ctx.fillRect(this.x-this.radius,this.y+this.radius,(this.health/this.max)*(2*this.radius),0.2*this.radius)
     }
 }
-
-
 
 class boss{
     constructor(x,y,radius,home,player,delay,speed,collision,health,bbd,epd){
@@ -959,7 +930,7 @@ class boss{
         if(this.player.laser){
             for(let k=8;k<80;k++){
                 if(this.collision(this.x,this.y,this.radius,this.player.x+(Math.cos(this.player.lasertimer/50*Math.PI*2))*(this.player.radius*10)*k/80,this.player.y+(Math.sin(this.player.lasertimer/50*Math.PI*2))*(this.player.radius*10)*k/80,0)){
-                    this.health-=10
+                    this.health-=0.01
                 }
                 
             }
@@ -973,8 +944,6 @@ class boss{
         ctx.fillRect(this.x-this.radius,this.y+this.radius,(this.health/this.maxhealthboss)*(2*this.radius),0.2*this.radius)
        
     }
-
-
 }
 
 class bossbullet{
@@ -1231,50 +1200,23 @@ let start=0
 
 function main(){
    if(gameover){
-    // console.log('l')
-    // window.cancelAnimationFrame(request)
-    // window.removeEventListener("keydown",Player1.keydown)
-    // window.removeEventListener("keyup",Player1.keyup);
-    // window.removeEventListener("mousemove",Player1.getmousecoord.bind(Player1))
-    // window.removeEventListener("mousedown",Player1.mousedown)
-    // window.removeEventListener("mouseup",Player1.mouseup)
-    // Player1.up=false
-    // Player1.down=false
-    // Player1.left=false
-    // Player1.right=false
-    // Player1.shootpressed=false
-    // Player1.selfheal=false
-    // Player1.healthpressed=false
-    // ctx.fillStyle='rgba(128,128,128,0.25)'
-    // ctx.fillRect(0,0,window.innerWidth,window.innerHeight)
-    
     highscoreupdate()
     gameoverscreen()
     start=2
-   
-   
-   
-    
-   // resetvariables()
-    
-   
-    
    }
-
-  if(start==0){
+   if(start==0){
     startbackground()
     staticscreen()
     instructions()
     leaderboarddisp()
-  }
-  if(start==1){
+   }
+   if(start==1){
     gamelogic()
     gamepretty()
-  }
+   }
    if(!pause){
     request=requestAnimationFrame(main)
    }
-   
 } 
 
 
@@ -1308,7 +1250,7 @@ let score=0
 let homecount=0
 let bosscount=0
 let bossspawned=false
-let boss_basehealth=1500
+let boss_basehealth=900
 let basebossbullet=50
 let basebosspellet=5
 let boss_enemy= new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,boss_basehealth,basebossbullet,basebosspellet)
@@ -1318,6 +1260,7 @@ let bosskilled=0
 let letboss=0
 let bossarray=[]
 let once=true
+
 function gamelogic(){
     if(firsttime==0){
         enemyarray.push(enemy1)
@@ -1391,8 +1334,8 @@ function checkgameover(){
 function randomlocation(){
     let xw=window.innerWidth
     let yh=window.innerHeight
-    return [(3*xw)/100 + (Math.random() * ((94*xw)/100)),(3*xw)/100 + (Math.random() * ((yh/1.2)-(x/10)))
-]
+    return [(3*xw)/100 + (Math.random() * ((94*xw)/100)),(3*xw)/100 + (Math.random() * ((yh/1.2)-(x/10)))]
+
 }
 
 function generatespawn(){
@@ -1480,10 +1423,11 @@ function checkdeath(){
     }
     if(bossspawned){
         if(bossarray[bosskilled].health<0){
+            console.log('hello')
             bossspawned=false
             bosscount=0
             bosskilled+=1
-            boss_basehealth+=175
+            boss_basehealth+=100
             basebossbullet+=10
             basebosspellet+=2
             Player1.maxhealth+=10
@@ -1565,9 +1509,6 @@ function drawborder(){
     ctx.fillStyle='red'
     ctx.fillRect(window.innerWidth-window.innerWidth/100,window.innerWidth/100,window.innerWidth,window.innerHeight-window.innerWidth/100)
 }
-
-
-
 
 function generateStars(numStars) {
     const stars = [];
@@ -1810,8 +1751,6 @@ function instructions(){
         ctx.fillText('Left Click',x/2,5*y/16,x/8)
         ctx.fillText('Right Click',x/2,7*y/16,x/8)
         ctx.fillText('R',x/2,9*y/16,x/8)
-        
-
         ctx.fillStyle='rgba(255,255,255,0.50)'
         ctx.font=x/180+'px retro'
         ctx.fillText('-to move up',3*x/16+x/16,5*y/16)
@@ -1919,6 +1858,9 @@ function resetvariables(){
     tempmax=10
     tempmel=3
     gameclick=0
+    spawned=false
+    spawncheck=0
+    spawnpowerups=[]
 }
 
 let leadership=[0,0,0,0,0]
@@ -1987,7 +1929,10 @@ function addspawnables(){
         spawncheck=0
     }
 }
+
+
 let gameclick=0
+
 function gameoverscreen(){
     ctx.fillStyle='black'
     ctx.fillRect(0,0,window.innerWidth,window.innerHeight)
@@ -2003,8 +1948,4 @@ function gameoverscreen(){
     ctx.font='100px retro'
     ctx.fillStyle='rgba(0,0,255,0.50)'
     ctx.fillText('Play Again',12.5+x/3+10,11*y/20+315,x/3-25)
-   
-
-
-
 }
