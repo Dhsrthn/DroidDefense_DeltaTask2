@@ -1423,6 +1423,7 @@ function checkdeath(){
     }
     if(bossspawned){
         if(bossarray[bosskilled].health<0){
+            score+=1000
             console.log('hello')
             bossspawned=false
             bosscount=0
