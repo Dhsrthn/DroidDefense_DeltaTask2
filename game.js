@@ -14,6 +14,25 @@ function resizeCanvas(canvas){
     canvas.height = window.innerHeight-(0.01*window.innerHeight);
 }
 
+window.addEventListener('keydown',gamefunc)
+let hold=0
+
+function gamefunc(e){
+    if(e.key==' '){
+        if(hold%2==0){
+          hold+=1
+          pausegame()
+          return
+        }
+        if(hold%2!==0){
+          hold+=1
+          playgame()
+          return
+        }
+      } 
+
+}
+
 let mouseX,mouseY
 let backcanvas 
 backcanvas=document.getElementById("backgroundcanvas")
@@ -23,6 +42,8 @@ y=window.innerHeight
 let e
 p=0.01*window.innerWidth
 q=0.01*window.innerHeight
+
+let pause = false
 
 function detectcollision(x1,y1,x2,y2,r1,r2){
     return (Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1))) < (r1+r2)
@@ -732,7 +753,7 @@ class homing_melee{
 class boss{
     constructor(x,y,radius,home,player,delay,speed,collision,health){
         this.x=window.innerWidth/2
-        this.y=0
+        this.y=-radius*2
         this.inix=x
         this.iniy=y
         this.radius=radius  
@@ -1054,18 +1075,30 @@ bothPlayerBaseEnemy=document.createElement('img')
 bothPlayerBaseEnemy.src='files/enemyhomeplayer.png'
 
 let gameover=false
+let start=0
 
 
 function main(){
-//    if(gameover){
-//     if(confirm("you've lost press ok to restart")){
+   if(gameover){
+    if(confirm("you've lost press ok to restart")){
         
-//         window.location.reload()
-//     }
-//    }
-   gamelogic()
-   gamepretty()
-   requestAnimationFrame(main)
+        window.location.reload()
+    }
+   }
+
+  if(start==0){
+    startbackground()
+    staticscreen()
+    instructions()
+  }
+  if(start==1){
+    gamelogic()
+    gamepretty()
+  }
+   if(!pause){
+    request=requestAnimationFrame(main)
+   }
+   
 } 
 
 
@@ -1135,7 +1168,7 @@ function gamepretty(){
     drawStars(stars)
     Player1.draw(ctx)
     home_base.draw()
-    
+
     
     enemyarray.forEach((array)=>{
         array.forEach((enem)=>{
@@ -1282,11 +1315,6 @@ function drawgamedeets(){
             ctx.drawImage(lifeno,x/2+10*x/100+(i*160), y/1.2+x/24, 150,150)
         }
     }
-    // ctx.drawImage(lifeyes,x/2+10*x/100, y/1.2+x/24, 150,150)
-    // ctx.drawImage(lifeyes,x/2+10*x/100+160, y/1.2+x/24, 150,150)
-    // ctx.drawImage(lifeyes,x/2+10*x/100+320, y/1.2+x/24, 150,150)
-    // ctx.drawImage(lifeyes,x/2+10*x/100+480, y/1.2+x/24, 150,150)
-    // ctx.drawImage(lifeyes,x/2+10*x/100+640, y/1.2+x/24, 150,150)
 
 }
 
@@ -1347,4 +1375,159 @@ function drawStars(stars) {
 const numStars = 500;
 const stars = generateStars(numStars);
 
+
+function pausegame(){
+    if(!pause){
+
+        ctx.fillStyle='rgba(128,128,128,0.25)'
+        ctx.fillRect(0,0,window.innerWidth,window.innerHeight)
+        staticscreen()
+        window.cancelAnimationFrame(request)
+        window.removeEventListener("keydown",Player1.keydown)
+        window.removeEventListener("keyup",Player1.keyup);
+        window.removeEventListener("mousemove",Player1.getmousecoord.bind(Player1))
+        window.removeEventListener("mousedown",Player1.mousedown)
+        window.removeEventListener("mouseup",Player1.mouseup)
+        pause=true
+        Player1.up=false
+        Player1.down=false
+        Player1.left=false
+        Player1.right=false
+        Player1.selfheal=false
+        Player1.healthpressed=false
+        }
+}
+
+function playgame(){
+    if(pause){
+        
+        window.addEventListener("keydown",Player1.keydown)
+        window.addEventListener("keyup",Player1.keyup);
+        window.addEventListener("mousemove",Player1.getmousecoord.bind(Player1))
+        window.addEventListener("mousedown",Player1.mousedown)
+        window.addEventListener("mouseup",Player1.mouseup)
+        pause=false
+        main()
+    }
+
+}
+let xcoord,ycoord;
+window.addEventListener('click',getcoord)
+window.addEventListener('onmouseover',mousecoordinate)
+function getcoord(e){
+    if(e.button===0){
+        xcoord=e.clientX
+        ycoord=e.clientY
+    }
+    checkfrontpage()
+    instructions()
+   
+}
+
+let instructionscalled=0
+let leadercalled=0
+
+function checkfrontpage(){
+    let height=window.innerHeight
+    let width=window.innerWidth
+    if(start==0){
+        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20 && ycoord<11* height/20 +150 ){
+            start=1
+        }
+    }
+    if(start==0 || pause){
+        //instructions
+        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20+175 && ycoord<11* height/20 +325){
+            instructionscalled=1
+        }
+        //leaderboard
+        
+           
+    }
+     
+    if(start!=0 && pause){
+        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20 && ycoord<11* height/20 +150 ){
+            hold+=1
+            playgame()
+        }
+    }
+    if(instructionscalled==1){
+        if(xcoord>7*x/16 && xcoord<9*x/16 && ycoord> 6*y/8 && ycoord<13*y/16 ){
+            if(pause){
+                playgame()
+                hold+=1
+            }
+            instructionscalled=0
+
+
+        }
+    }
+   
+}
+
+function mousecoordinate(e){
+    xhover=e.clientX
+    yhover=e.clientY
+}
+
+function startbackground(){
+    ctx.fillStyle = "black";
+    let height=window.innerHeight
+    let width=window.innerWidth
+    ctx.fillRect(0,0, width, height)
+    generateStars(numStars)
+    drawStars(stars)
+}
+
+function staticscreen(){
+    let height=window.innerHeight
+    let width=window.innerWidth
+    ctx.fillStyle='rgba(128,128,128,0.25)'
+    ctx.fillRect(width/4,height/4,width/2,height/2)
+    ctx.fillStyle='blue'
+    ctx.font='bold 200px retro'
+    ctx.fillText('Droid Defense',width/3 ,height/2,width/3)
+    ctx.lineWidth=x/500
+   
+    //start
+    if(start==0){
+        ctx.strokeStyle='rgba(0,0,255,0.75)'
+        ctx.strokeRect(width/3,11*height/20,width/3,150)
+        ctx.font='100px retro'
+        ctx.fillStyle='rgba(0,0,255,0.50)'
+        ctx.fillText('Start Game',12.5+width/3+10,11*height/20+140,width/3-25)
+    }
+    else{
+        ctx.strokeStyle='rgba(0,0,255,0.75)'
+        ctx.strokeRect(width/3,11*height/20,width/3,150)
+        ctx.font='100px retro'
+        ctx.fillStyle='rgba(0,0,255,0.50)'
+        ctx.fillText('Resume',12.5+width/3+10,11*height/20+140,width/3-25)
+    }
+   
+    //instructions
+    ctx.strokeStyle='rgba(0,0,255,0.75)'
+    ctx.strokeRect(width/3,11*height/20+175,width/3,150)
+    ctx.font='100px retro'
+    ctx.fillStyle='rgba(0,0,255,0.50)'
+    ctx.fillText('Instructions',12.5+width/3+10,11*height/20+315,width/3-25)
+    //leaderboard
+    ctx.strokeStyle='rgba(0,0,255,0.75)'
+    ctx.strokeRect(width/3,11*height/20+350,width/3,150)
+    ctx.font='100px retro'
+    ctx.fillStyle='rgba(0,0,255,0.50)'
+    ctx.fillText('LeaderBoard',12.5+width/3+10,11*height/20+490,width/3-25)
+    
+    
+}
+
+function instructions(){
+
+    if(instructionscalled==1){
+        ctx.fillStyle='black'
+        ctx.strokeRect(x/8,y/8,6*x/8,6*y/8)
+        ctx.fillRect(x/8,y/8,6*x/8,6*y/8)
+        ctx.strokeRect(7*x/16,6*y/8,x/8,y/16)
+    }    
+}
 
