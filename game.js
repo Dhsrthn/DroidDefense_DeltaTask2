@@ -49,8 +49,10 @@ function detectcollision(x1,y1,x2,y2,r1,r2){
     return (Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1))) < (r1+r2)
 }
 
+
+
 class player{
-    constructor(x,y,a,w,h,speed,boundx,boundy,topbx,topby,home,collision,health,enemies,damage,regen){
+    constructor(x,y,a,w,h,speed,boundx,boundy,topbx,topby,home,collision,health,enemies,damage,regen,lasertimer){
         this.x=x
         this.y=y
         this.radius=a
@@ -62,15 +64,19 @@ class player{
         this.gunwidth=w
         this.gunheight=h
         this.health=health
-        this.maxhealth=health
+        this.maxhealth=100
         this.home=home
         this.collision=collision
         this.enemies=enemies
         this.damage=damage
+        this.maxregen=100
         this.regen=regen
         this.selfhealmeter=0
         this.gun1= new gun(this,this.x,this.y,this.gunwidth,this.gunheight,this.angle,this.shootpressed,20,this.healthpressed,this.home)
-
+        this.laser=false
+        this.lasertimer=lasertimer
+        this.laserr=lasertimer
+        this.healable=20
 
         window.addEventListener("keydown",this.keydown);
         window.addEventListener("keyup",this.keyup);
@@ -80,14 +86,14 @@ class player{
     }
 
     draw(ctx){
-        console.log(this.health)
+        
         this.movement()
         this.playerimg=document.createElement('img')
         this.playerimg.src='files/player.png'
         ctx.save()
         ctx.beginPath()
         ctx.arc(this.x,this.y,this.radius,0,2*Math.PI)
-        ctx.clip
+        
         
         ctx.drawImage(this.playerimg, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2)
         ctx.closePath()
@@ -97,8 +103,8 @@ class player{
         if(this.health>this.maxhealth){
             this.health=this.maxhealth
         }
-        if(this.regen>100){
-            this.regen=100
+        if(this.regen>this.maxregen){
+            this.regen=this.maxregen
         }
         if(this.selfheal){
             if(this.regen>10){
@@ -106,7 +112,7 @@ class player{
                 this.healnow=true
             }
             else{
-                this.maxselfhealmeter=(this.regen/10)*200
+                this.maxselfhealmeter=(this.regen/10)*150
                 this.selfhealmeter+=1
                 if(this.selfhealmeter>this.maxselfhealmeter){
                     this.selfhealmeter=this.maxselfhealmeter
@@ -116,13 +122,13 @@ class player{
         }
         if(!(this.selfheal)){
             if(this.healnow){
-                if(this.selfhealmeter>200){
-                    this.health+=20
+                if(this.selfhealmeter>150){
+                    this.health+=this.healable
                     this.regen-=10
                 }
                 else{   
-                    this.health+=(this.selfhealmeter/200)*20
-                    this.regen-=(this.selfhealmeter/200)*10
+                    this.health+=(this.selfhealmeter/150)*this.healable
+                    this.regen-=(this.selfhealmeter/150)*10
                 }
                 
             }
@@ -131,10 +137,21 @@ class player{
         }
         if(this.selfheal){
             ctx.beginPath()
-            ctx.arc(this.x,this.y,this.radius+10,0,((this.selfhealmeter)/200)*Math.PI*2)
-            ctx.strokeStyle='green'
+            ctx.arc(this.x,this.y,this.radius+10,0,((this.selfhealmeter)/150)*Math.PI*2)
+            ctx.strokeStyle='blue'
             ctx.lineWidth=10
             ctx.stroke()
+        }
+        if(this.laser){
+            this.lasertimer-=1
+            if(this.lasertimer>0){
+                this.laseraction()
+            }
+            if(this.lasertimer<0){
+                this.lasertimer=this.laserr
+                this.laser=false
+            }
+            
         }
     }
 
@@ -238,7 +255,25 @@ class player{
         ctx.strokeRect(window.innerWidth/50+this.diff*3.5,this.home.y+this.home.radius,(this.radius*3),this.radius*0.5)
     }
     
+    laseraction(){
+        ctx.beginPath()
+        ctx.moveTo(this.x+(Math.cos(this.lasertimer/50*Math.PI*2))*this.radius,this.y+(Math.sin(this.lasertimer/50*Math.PI*2))*this.radius)
+        ctx.lineTo(this.x+(Math.cos(this.lasertimer/50*Math.PI*2))*(this.radius*10),this.y+(Math.sin(this.lasertimer/50*Math.PI*2))*(this.radius*10))
+        ctx.lineWidth=this.gunwidth/3
+        ctx.strokeStyle='gray'
+        ctx.stroke()
 
+        for(let i=0;i<this.enemies.length;i++){
+            if(typeof(this.enemies[i].length)=='number'){
+                for(let j=0;j<this.enemies[i].length;j++){
+                    for(let k=8;k<80;k++){
+                        if(this.collision(this.enemies[i][j].x,this.enemies[i][j].y,this.enemies[i][j].radius,this.x+(Math.cos(this.lasertimer/50*Math.PI*2))*(this.radius*10)*k/80,this.y+(Math.sin(this.lasertimer/50*Math.PI*2))*(this.radius*10)*k/80,0))
+                        this.enemies[i][j].health-=10
+                    }
+                }
+            }
+        }
+    }
 
 }
 
@@ -260,6 +295,7 @@ class gun{
         this.healthmeter=0
         this.healthbullets=[]
         this.home=home
+        this.maxearth=100
 
     }
 
@@ -281,43 +317,53 @@ class gun{
             bullet.draw()
          })
         this.bullets.forEach((bullet)=>{
-        
-            for(let i=0; i <this.player.enemies[0].length;i++){
-                if(this.player.collision(bullet.x,bullet.y,bullet.radius,this.player.enemies[0][i].x,this.player.enemies[0][i].y,this.player.enemies[0][i].radius)){
-                    const index = this.bullets.indexOf(bullet)
-                    this.bullets.splice(index,1)
-                    this.player.regen+=this.player.damage/12
-                    this.player.enemies[0][i].health-=this.player.damage
-                   
+            if(typeof(this.player.enemies[0].length)=='number'){
+                for(let i=0; i <this.player.enemies[0].length;i++){
+                    if(this.player.collision(bullet.x,bullet.y,bullet.radius,this.player.enemies[0][i].x,this.player.enemies[0][i].y,this.player.enemies[0][i].radius)){
+                        const index = this.bullets.indexOf(bullet)
+                        this.bullets.splice(index,1)
+                        this.player.regen+=this.player.damage/12
+                        this.player.enemies[0][i].health-=this.player.damage
+                       
+                    }
                 }
             }
-            for(let i=0; i <this.player.enemies[1].length;i++){
-                if(this.player.collision(bullet.x,bullet.y,bullet.radius,this.player.enemies[1][i].x,this.player.enemies[1][i].y,this.player.enemies[1][i].radius)){
-                    const index = this.bullets.indexOf(bullet)
-                    this.bullets.splice(index,1)
-                    this.player.regen+=this.player.damage/8
-                    this.player.enemies[1][i].health-=this.player.damage*1.5
-                   
+            if(typeof(this.player.enemies[1].length)=='number'){
+                for(let i=0; i <this.player.enemies[1].length;i++){
+                    if(this.player.collision(bullet.x,bullet.y,bullet.radius,this.player.enemies[1][i].x,this.player.enemies[1][i].y,this.player.enemies[1][i].radius)){
+                        const index = this.bullets.indexOf(bullet)
+                        this.bullets.splice(index,1)
+                        this.player.regen+=this.player.damage/8
+                        this.player.enemies[1][i].health-=this.player.damage*1.5
+                       
+                    }
                 }
             }
-            for(let i=0; i <this.player.enemies[2].length;i++){
-                if(this.player.collision(bullet.x,bullet.y,bullet.radius,this.player.enemies[2][i].x,this.player.enemies[2][i].y,this.player.enemies[2][i].radius)){
-                    const index = this.bullets.indexOf(bullet)
-                    this.bullets.splice(index,1)
-                    this.player.regen+=this.player.damage/6
-                    this.player.enemies[2][i].health-=this.player.damage*2
-                   
+            if(typeof(this.player.enemies[2].length)=='number'){
+                for(let i=0; i <this.player.enemies[2].length;i++){
+                    if(this.player.collision(bullet.x,bullet.y,bullet.radius,this.player.enemies[2][i].x,this.player.enemies[2][i].y,this.player.enemies[2][i].radius)){
+                        const index = this.bullets.indexOf(bullet)
+                        this.bullets.splice(index,1)
+                        this.player.regen+=this.player.damage/6
+                        this.player.enemies[2][i].health-=this.player.damage*2
+                       
+                    }
                 }
             }
-            for(let i=0; i <this.player.enemies[3].length;i++){
-                if(this.player.collision(bullet.x,bullet.y,bullet.radius,this.player.enemies[3][i].x,this.player.enemies[3][i].y,this.player.enemies[3][i].radius)){
-                    const index = this.bullets.indexOf(bullet)
-                    this.bullets.splice(index,1)
-                    this.player.regen+=this.player.damage/16
-                    this.player.enemies[3][i].health-=this.player.damage*(3/4)
-                   
+            if(typeof(this.player.enemies[3].length)=='number'){
+                for(let i=0; i <this.player.enemies[3].length;i++){
+                    if(this.player.collision(bullet.x,bullet.y,bullet.radius,this.player.enemies[3][i].x,this.player.enemies[3][i].y,this.player.enemies[3][i].radius)){
+                        const index = this.bullets.indexOf(bullet)
+                        this.bullets.splice(index,1)
+                        this.player.regen+=this.player.damage/16
+                        this.player.enemies[3][i].health-=this.player.damage*(3/4)
+                       
+                    }
                 }
             }
+            
+            
+            
             
         })
 
@@ -343,8 +389,8 @@ class gun{
 
         if(this.healthpress){
             ctx.beginPath()
-            ctx.arc(this.x,this.y,this.player.radius+10,0,((this.healthmeter)/200)*Math.PI*2)
-            ctx.strokeStyle='blue'
+            ctx.arc(this.x,this.y,this.player.radius+10,0,((this.healthmeter)/150)*Math.PI*2)
+            ctx.strokeStyle='green'
             ctx.lineWidth=10
             ctx.stroke()
         }
@@ -407,7 +453,7 @@ class gun{
             }
             else{
                 
-                this.maxhealmeter=(this.player.regen/10)*200
+                this.maxhealmeter=(this.player.regen/10)*150
         
                 this.healthmeter+=1
                 if(this.healthmeter>this.maxhealmeter){
@@ -420,13 +466,13 @@ class gun{
         if(!(this.healthpress)){
             if(this.bulletadd){
             
-                this.healthbullets.push(new health_pellet(this.x,this.y,speed,this.width,this.rotateang,this.player,this.healthmeter))
+                this.healthbullets.push(new health_pellet(this.x,this.y,speed,this.width,this.rotateang,this.player,this.healthmeter,this.maxearth))
             }
-            if(this.healthmeter>200){
+            if(this.healthmeter>150){
                 this.player.regen-=10
             }
             else{
-                this.player.regen-=(this.healthmeter/200 ) *10
+                this.player.regen-=(this.healthmeter/150 ) *10
             }
             this.bulletadd=false
             this.healthmeter=0
@@ -435,7 +481,7 @@ class gun{
 }
 
 class health_pellet{
-    constructor(x,y,speed,gunwidth,angle,player,healing){
+    constructor(x,y,speed,gunwidth,angle,player,healing,maxheal){
         this.x=x
         this.y=y
         this.radius=gunwidth/2
@@ -443,6 +489,7 @@ class health_pellet{
         this.angletravel=angle
         this.player=player
         this.healing=healing
+        this.maxheal=maxheal
     }
     draw(){
         ctx.beginPath()
@@ -451,11 +498,11 @@ class health_pellet{
         this.y+=this.speed*Math.cos(-this.angletravel)
         ctx.fillStyle='green'
         ctx.fill()
-        if(this.healing>200){
-            this.healed=75
+        if(this.healing>150){
+            this.healed=this.maxheal
         }
         else{
-             this.healed=(this.healing/200)*75
+             this.healed=(this.healing/150)*this.maxheal
         }
     } 
 }
@@ -598,7 +645,7 @@ class base_enemy{
        })
        
        if(this.attack.length==1){
-        this.class=14
+        this.class=1
        }
        else{
         this.class=2
@@ -751,7 +798,7 @@ class homing_melee{
 
 
 class boss{
-    constructor(x,y,radius,home,player,delay,speed,collision,health){
+    constructor(x,y,radius,home,player,delay,speed,collision,health,bbd,epd){
         this.x=window.innerWidth/2
         this.y=-radius*2
         this.inix=x
@@ -768,6 +815,9 @@ class boss{
         this.array=[this.player,this.home]
         this.counter=1
         this.health=health
+        this.bossbulletdamage=bbd 
+        this.eachpelletdmg=epd
+        this.maxhealthboss=health
     }
 
     draw(){
@@ -798,6 +848,7 @@ class boss{
         this.drawbullet()
         this.drawpellet()
         this.takedamge()
+        this.healthbar()
         
     }
 
@@ -833,7 +884,7 @@ class boss{
     
     shoot(){
         this.targetangle=Math.atan2(this.home.y-this.y,this.home.x-this.x)
-        this.bigammo.push(new bossbullet(this.x,this.y,10,this.radius/4,this.targetangle,this,50))
+        this.bigammo.push(new bossbullet(this.x,this.y,10,this.radius/4,this.targetangle,this,this.bossbulletdamage))
         
     }
     drawbullet(){
@@ -855,7 +906,7 @@ class boss{
     
     spray(){
         for(let i=0;i<50;i++){
-            this.bosspellets.push(new bosspellet(this.x,this.y,15,this.radius/10,((i+1)/50)*Math.PI*2,this,5))
+            this.bosspellets.push(new bosspellet(this.x,this.y,15,this.radius/10,((i+1)/50)*Math.PI*2,this,this.eachpelletdmg))
         }
     }
 
@@ -886,13 +937,28 @@ class boss{
             if (this.collision(playerbullet.x,playerbullet.y,playerbullet.radius,this.x,this.y,this.radius)){
                 const index=this.player.gun1.bullets.indexOf(playerbullet)
                 this.player.gun1.bullets.splice(index,1)
-                this.health-=this.player.damage/5
-                this.player.regen+=this.player.damage/60
+                this.health-=this.player.damage/1.2
+                this.player.regen+=this.player.damage/14.4
             }
         })
+
+        if(this.player.laser){
+            for(let k=8;k<80;k++){
+                if(this.collision(this.x,this.y,this.radius,this.player.x+(Math.cos(this.player.lasertimer/50*Math.PI*2))*(this.player.radius*10)*k/80,this.player.y+(Math.sin(this.player.lasertimer/50*Math.PI*2))*(this.player.radius*10)*k/80,0)){
+                    this.health-=10
+                }
+                
+            }
+        }
     }
     
-
+    healthbar(){
+        ctx.strokeRect(this.x-this.radius,this.y+this.radius,2*this.radius,0.2*this.radius)
+        ctx.fillStyle='red'
+        console.log('j')
+        ctx.fillRect(this.x-this.radius,this.y+this.radius,(this.health/this.maxhealthboss)*(2*this.radius),0.2*this.radius)
+        console.log('j')
+    }
 
 
 }
@@ -1063,6 +1129,58 @@ class homebullet{
     }
 
 }
+
+let laserimg=document.createElement('img')
+let selfimg=document.createElement('img')
+let earthhealimg=document.createElement('img')
+laserimg.src='files/laser.png'
+selfimg.src='files/selfheal.png'
+earthhealingimg.src='files/baseheal.png'
+
+
+class spawnables{
+    constructor(x,y,type,radius,player,collision,img){
+        this.x=x
+        this.y=y
+        this.type=type
+        this.radius=radius
+        this.player=player
+        this.collision=collision
+        this.img=img
+    }
+    draw(){
+        switch(this.type){
+            case 1:
+                ctx.save()
+                ctx.beginPath()
+                ctx.arc(this.x,this.y,this.radius,0,2*Math.PI)
+                ctx.drawImage(this.img, this.x - this.radius, this.y - this.radius,   this.radius * 2, this.radius * 2)
+                ctx.closePath()
+                if(this.collision(this.player.x,this.player.y,this.player.radius,this.x,this.y,this.radius)){
+                    this.player.health+=50
+                }
+            case 2:
+                ctx.save()
+                ctx.beginPath()
+                ctx.arc(this.x,this.y,this.radius,0,2*Math.PI)
+                ctx.drawImage(this.img, this.x - this.radius, this.y - this.radius,  this.radius * 2, this.radius * 2)
+                ctx.closePath()
+                if(this.collision(this.player.x,this.player.y,this.player.radius,this.x,this.y,this.radius)){
+                    this.home.health+=(this.max-this.health)*0.5
+                }
+            case 2:
+                ctx.save()
+                ctx.beginPath()
+                ctx.arc(this.x,this.y,this.radius,0,2*Math.PI)
+                ctx.drawImage(this.img, this.x - this.radius, this.y - this.radius,     this.radius * 2, this.radius * 2)
+                ctx.closePath()
+                if(this.collision(this.player.x,this.player.y,this.player.radius,this.x,this.y,this.radius)){
+                    this.player.laser=true
+                }
+
+        }
+    }
+}
 function collision(x1,y1,r1,x2,y2,r2){
     return r1+r2>((x1-x2)**2+(y1-y2)**2)**(0.5)
 }
@@ -1080,12 +1198,13 @@ let start=0
 
 
 function main(){
-    console.log(x,y)
    if(gameover){
-    if(confirm("you've lost press ok to restart")){
-        
-        window.location.reload()
-    }
+    console.log(score)
+    highscoreupdate()
+    resetvariables()
+    
+    console.log(leadership)
+    start=0
    }
 
   if(start==0){
@@ -1111,27 +1230,40 @@ window.requestAnimationFrame(main)
 let Enemy_delay=1500
 let Boss_delay=3000
 let damage=10
-let home_base= new home(x/2,y/1.2,2500,x/20,detectcollision)
+let home_health=2500
+let home_base= new home(x/2,y/1.2,home_health,x/20,detectcollision)
 enemyarray=[]
 enemy1=[]
 enemy2=[]
 enemy3=[]
 enemy4=[]
-let Player1 = new player(x/2,y/2,x/50,x/100,x/50,10,x-(x/100),home_base.y+home_base.radius/3,x/100,x/100,home_base,collision,200,enemyarray,damage,100)
+let lasertimer=500
+let max_health=100
+let playerspeed=10
+let maxregen=100
+let Player1 = new player(x/2,y/2,x/50,x/100,x/50,playerspeed,x-(x/100),home_base.y+home_base.radius/3,x/100,x/100,home_base,collision,max_health,enemyarray,damage,maxregen,lasertimer)
 let firsttime=0
 let Max_Count=10
 let Max_melee=3
+let tempmax=10
+let tempmel=3
 let Homing_count=1
 let melee_count=0
 let ecount=0
 let score=0
 let homecount=0
-let bosscount=5
+let bosscount=0
 let bossspawned=false
-let boss_enemy= new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,10)
+let boss_basehealth=1500
+let basebossbullet=50
+let basebosspellet=5
+let boss_enemy= new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,boss_basehealth,basebossbullet,basebosspellet)
 let lives=[1,1,1,1,1]
 let lifecount=5
-
+let bosskilled=0
+let letboss=0
+let bossarray=[]
+let once=true
 function gamelogic(){
     if(firsttime==0){
         enemyarray.push(enemy1)
@@ -1149,12 +1281,14 @@ function gamelogic(){
     }
     checkdeath()
     if(bosscount==5){
+        if(letboss==0){
+            bossarray.push( new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,boss_basehealth,basebossbullet,basebosspellet))
+        }
+        letboss=1
         bossspawned=true
     }
     checkgameover()
-   
-
-    
+    high()
 }
 
 function gamepretty(){
@@ -1182,7 +1316,7 @@ function gamepretty(){
         )
     })
     if(bossspawned){
-        boss_enemy.draw()
+        bossarray[bosskilled].draw()
         Max_Count=6
         Max_melee=2
     }
@@ -1190,7 +1324,7 @@ function gamepretty(){
 }
 
 function checkgameover(){
-    if(lifecount==0 || home_base.health==0){
+    if(lifecount==0 || home_base.health<0){
         gameover=true
     }
 }
@@ -1274,7 +1408,9 @@ function checkdeath(){
             if(enem.class==4){
                 score+=15
                 homecount-=1
-                bosscount+=1
+                if(!bossspawned){
+                    bosscount+=1
+                }   
             }
             }
         })
@@ -1284,10 +1420,31 @@ function checkdeath(){
         lives[lifecount]=0
         Player1.health=Player1.maxhealth
     }
-    if(boss_enemy.health<0){
-        bossspawned=false
-        bosscount+=1
+    if(bossspawned){
+        if(bossarray[bosskilled].health<0){
+            bossspawned=false
+            bosscount=0
+            bosskilled+=1
+            boss_basehealth+=175
+            basebossbullet+=10
+            basebosspellet+=2
+            Player1.maxhealth+=10
+            home_base.max+=200
+            home_base.health=home_base.max
+            Player1.health=Player1.maxhealth
+            home_base.health=home_health
+            Player1.damage+=3
+            tempmax+=3
+            tempmel+=1
+            Max_melee=tempmel
+            Max_Count=tempmax
+            lasertimer+=150
+            Player1.gun1.maxearth+=50
+            Player1.healable+=2
+            Player1.lasertimer+=50
+        }
     }
+    
 }
 
 let lifeyes=document.createElement('img')
@@ -1391,7 +1548,7 @@ function drawStars(stars) {
 
     stars.forEach(star => {
         ctx.beginPath();
-        let radius =Math.random() * 2
+        let radius =Math.random() * 2.5
         let opacity=Math.random() * 0.5 + 0.5
         ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(' + value1+ ","+ value2+ "," +value3 +","+ `${opacity})`
@@ -1422,6 +1579,7 @@ function pausegame(){
         Player1.down=false
         Player1.left=false
         Player1.right=false
+        Player1.shootpressed=false
         Player1.selfheal=false
         Player1.healthpressed=false
         }
@@ -1574,6 +1732,97 @@ function leaderboarddisp(){
         ctx.strokeRect(x/8,y/8,6*x/8,6*y/8)
         ctx.fillRect(x/8,y/8,6*x/8,6*y/8)
         ctx.strokeRect(7*x/16,6*y/8,x/8,y/16)
-
+        ctx.fillStyle='blue'
+        ctx.font='100px retro'
+        ctx.fillText('LeaderBoard',x/4,y/4,x/2)
+        for(let i=0;i<5;i++){
+            ctx.font='75px retro'
+            ctx.fillStyle='rgba(255,255,255,0.75)'
+            ctx.fillText(`${i+1}`,x/4,(i+4)*y/12)
+            ctx.fillText(`${leadership[i]}`,5*x/8,(i+4)*y/12)
+        }
+        if(start==0){
+            ctx.fillStyle='blue'
+            ctx.fillText('Back',7*x/16+20,25*y/32+20,x/8-20)
+        }
+        else{
+            ctx.fillStyle='blue'
+            ctx.fillText('Resume',7*x/16+20,25*y/32+20,x/8-20)
+        }
     }
 }
+
+function resetvariables(){
+    hold=0
+    x=window.innerWidth
+    y=window.innerHeight
+    ctx=backcanvas.getContext("2d")
+    p=0.01*window.innerWidth
+    q=0.01*window.innerHeight
+    pause=false
+    gameover=false
+    Enemy_delay=1500
+    Boss_delay=3000
+    damage=10
+    home_base= new home(x/2,y/1.2,2500,x/20,detectcollision)
+    enemyarray=[]
+    enemy1=[]
+    enemy2=[]
+    enemy3=[]
+    enemy4=[]
+    max_health=100
+    Player1 = new player(x/2,y/2,x/50,x/100,x/50,10,x-(x/100),home_base.y+home_base.radius/3,x/100,x/100,home_base,collision,max_health,enemyarray,damage,100)
+    firsttime=0
+    Max_Count=10
+    Max_melee=3
+    Homing_count=1
+    melee_count=0
+    ecount=0
+    score=0
+    homecount=0
+    bosscount=0
+    bossspawned=false
+    boss_enemy= new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,10)
+    lives=[1,1,1,1,1]
+    lifecount=5
+    value1=255
+    value2=255
+    value3=255
+    home_health=2500
+    boss_basehealth=1500
+    basebossbullet=50
+    basebosspellet=5
+    playerspeed=10
+    letboss=0
+    bossarray=[]
+    tempmax=10
+    tempmel=3
+}
+
+let leadership=[0,0,0,0,0]
+const localhigh=['one','two','three','four','five']
+let val1  
+
+function high(){
+    for(let i=0;i<5;i++){
+        val1=localStorage.getItem(localhigh[i])
+        if(val1==null){
+            leadership[i]=0
+        }
+        else{
+            leadership[i]=JSON.parse(val1)
+        }
+    }
+}
+
+function highscoreupdate(){
+    if(!leadership.includes(score)){
+        leadership.push(score)
+        leadership.sort((a,b)=>b-a)
+        leadership.pop()
+    }
+    for(let i=0;i<5;i++){
+        localStorage.setItem(localhigh[i],JSON.stringify(leadership[i]))
+    }
+}
+
