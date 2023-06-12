@@ -1277,7 +1277,7 @@ function gamelogic(){
         generatespawn()
     }
     checkdeath()
-    if(bosscount==5){
+    if(bosscount==3){
         if(letboss==0){
             bossarray.push( new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,boss_basehealth,basebossbullet,basebosspellet))
         }
