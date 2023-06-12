@@ -1788,6 +1788,7 @@ function instructions(){
 }
 
 function leaderboarddisp(){
+    high()
     if(leaderboardcalled==1){
         ctx.fillStyle='black'
         ctx.strokeRect(x/8,y/8,6*x/8,6*y/8)
