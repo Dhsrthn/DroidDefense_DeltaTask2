@@ -1,4 +1,7 @@
 # delta_2_droid
+
+(works only on live server properly for some reason - figuring out)
+
 Space shooter game.
 Has three powerups.
 Green heart heals earth.
