@@ -930,7 +930,7 @@ class boss{
         if(this.player.laser){
             for(let k=8;k<80;k++){
                 if(this.collision(this.x,this.y,this.radius,this.player.x+(Math.cos(this.player.lasertimer/50*Math.PI*2))*(this.player.radius*10)*k/80,this.player.y+(Math.sin(this.player.lasertimer/50*Math.PI*2))*(this.player.radius*10)*k/80,0)){
-                    this.health-=0.1
+                    this.health-=0.3
                 }
                 
             }
@@ -1905,8 +1905,7 @@ function addspawnables(){
         timer-=1
     }
     if(timer<0 && !spawned){
-       typespawn=Math.floor(Math.random()*3)+1
-       
+        typespawn=Math.floor(Math.random()*3)+1
         switch(typespawn){
             case 1:
                  arrrayspan=randomlocation()
