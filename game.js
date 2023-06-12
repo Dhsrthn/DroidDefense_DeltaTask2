@@ -930,7 +930,7 @@ class boss{
         if(this.player.laser){
             for(let k=8;k<80;k++){
                 if(this.collision(this.x,this.y,this.radius,this.player.x+(Math.cos(this.player.lasertimer/50*Math.PI*2))*(this.player.radius*10)*k/80,this.player.y+(Math.sin(this.player.lasertimer/50*Math.PI*2))*(this.player.radius*10)*k/80,0)){
-                    this.health-=0.01
+                    this.health-=0.1
                 }
                 
             }
@@ -1277,7 +1277,7 @@ function gamelogic(){
         generatespawn()
     }
     checkdeath()
-    if(bosscount==3){
+    if(bosscount==5){
         if(letboss==0){
             bossarray.push( new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,boss_basehealth,basebossbullet,basebosspellet))
         }
