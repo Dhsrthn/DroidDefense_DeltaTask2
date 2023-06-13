@@ -430,7 +430,7 @@ class gun{
     }
 
     healthfire(){
-        let speed=7
+        let speed=window.innerWidth/1000
         if(this.healthpress){
             if(this.player.regen>10){
                 this.healthmeter+=1
@@ -610,8 +610,6 @@ class base_enemy{
                 const index=this.enembullets.indexOf(enemybullet)
                 this.enembullets.splice(index,1)
                 this.player.health-=this.damage
-                ctx.font='100px Courier'
-                
             }
         })
         this.enembullets.forEach((enemybullet)=>{
@@ -677,7 +675,7 @@ class base_enemy{
 
     shoot(){
         this.target()
-        this.enembullets.push(new enemy_bullet(this.x,this.y,20,this.radius/5,this.targetangle,this))
+        this.enembullets.push(new enemy_bullet(this.x,this.y,window.innerWidth/373,this.radius/5,this.targetangle,this))
         
     }
 
@@ -728,7 +726,7 @@ class homing_melee{
         this.angle=angle
         this.radius=radius
         this.c=1
-        this.speed=2
+        this.speed=window.innerWidth/3730
         this.health=100
         this.class=3
         this.damage=damage
@@ -869,7 +867,7 @@ class boss{
     
     shoot(){
         this.targetangle=Math.atan2(this.home.y-this.y,this.home.x-this.x)
-        this.bigammo.push(new bossbullet(this.x,this.y,10,this.radius/4,this.targetangle,this,this.bossbulletdamage))
+        this.bigammo.push(new bossbullet(this.x,this.y,window.innerWidth/746,this.radius/4,this.targetangle,this,this.bossbulletdamage))
         
     }
     drawbullet(){
@@ -891,7 +889,7 @@ class boss{
     
     spray(){
         for(let i=0;i<50;i++){
-            this.bosspellets.push(new bosspellet(this.x,this.y,15,this.radius/10,((i+1)/50)*Math.PI*2,this,this.eachpelletdmg))
+            this.bosspellets.push(new bosspellet(this.x,this.y,window.innerWidth/497,this.radius/10,((i+1)/50)*Math.PI*2,this,this.eachpelletdmg))
         }
     }
 
@@ -1078,7 +1076,7 @@ class homing_enemy{
     }
     shoot(){
         if(this.homebullets.length==0){
-            this.homebullets.push( new homebullet(this.x,this.y,this.radius/5,7,this.player,this.home,this))
+            this.homebullets.push( new homebullet(this.x,this.y,this.radius/5,window.innerWidth/1065,this.player,this.home,this))
         }
     }
     offscreen(bullet){
@@ -1199,6 +1197,7 @@ let start=0
 
 
 function main(){
+    console.log(window.innerHeight,window.innerWidth)
    if(gameover){
     highscoreupdate()
     gameoverscreen()
@@ -1235,7 +1234,7 @@ enemy3=[]
 enemy4=[]
 let lasertimer=500
 let max_health=100
-let playerspeed=10
+let playerspeed=window.innerWidth/746
 let maxregen=100
 let Player1 = new player(x/2,y/2,x/50,x/100,x/50,playerspeed,x-(x/100),home_base.y+home_base.radius/3,x/100,x/100,home_base,collision,max_health,enemyarray,damage,maxregen,lasertimer)
 let firsttime=0
@@ -1253,7 +1252,7 @@ let bossspawned=false
 let boss_basehealth=900
 let basebossbullet=50
 let basebosspellet=5
-let boss_enemy= new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,boss_basehealth,basebossbullet,basebosspellet)
+
 let lives=[1,1,1,1,1]
 let lifecount=5
 let bosskilled=0
@@ -1279,7 +1278,7 @@ function gamelogic(){
     checkdeath()
     if(bosscount==5){
         if(letboss==0){
-            bossarray.push( new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,boss_basehealth,basebossbullet,basebosspellet))
+            bossarray.push( new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,window.innerWidth/3730,collision,boss_basehealth,basebossbullet,basebosspellet))
         }
         letboss=1
         bossspawned=true
@@ -1342,13 +1341,13 @@ function generatespawn(){
     let n=Math.floor(Math.random()*4)+1
     if(n==1){
         let array=randomlocation()
-        enemy1.push(new base_enemy(array[0],array[1],2,x/50,home_base,Enemy_delay,[home_base],onlyBaseenemy,Player1,collision,100,5))
+        enemy1.push(new base_enemy(array[0],array[1],window.innerWidth/3730,x/50,home_base,Enemy_delay,[home_base],onlyBaseenemy,Player1,collision,100,5))
         ecount+=1
         return
     }
     if(n==2){
         let array=randomlocation()
-        enemy2.push(new base_enemy(array[0],array[1],2,x/50,home_base,Enemy_delay,[home_base,Player1],bothPlayerBaseEnemy,Player1,collision,100,5))
+        enemy2.push(new base_enemy(array[0],array[1],window.innerWidth/3730,x/50,home_base,Enemy_delay,[home_base,Player1],bothPlayerBaseEnemy,Player1,collision,100,5))
         ecount+=1
         return
     }
@@ -1363,7 +1362,7 @@ function generatespawn(){
         }
          else{
             let array=randomlocation()
-            enemy1.push(new base_enemy(array[0],array[1],2,x/50,home_base,Enemy_delay,[home_base],onlyBaseenemy,Player1,collision,100,5))
+            enemy1.push(new base_enemy(array[0],array[1],window.innerWidth/3730,x/50,home_base,Enemy_delay,[home_base],onlyBaseenemy,Player1,collision,100,5))
             ecount+=1
             return
         }
@@ -1372,7 +1371,7 @@ function generatespawn(){
     if(n==4){
         if(homecount<Homing_count){
             let array=randomlocation()
-            enemy4.push(new homing_enemy(array[0],array[1],2,x/50,Enemy_delay,3,Player1,home_base,collision,100))
+            enemy4.push(new homing_enemy(array[0],array[1],window.innerWidth/3730,x/50,Enemy_delay,3,Player1,home_base,collision,100))
             homecount+=1
             ecount+=1
             return
@@ -1380,7 +1379,7 @@ function generatespawn(){
         }
         else{
             let array=randomlocation()
-            enemy1.push(new base_enemy(array[0],array[1],2,x/50,home_base,Enemy_delay,[home_base],onlyBaseenemy,Player1,collision,100,5))
+            enemy1.push(new base_enemy(array[0],array[1],window.innerWidth/3730,x/50,home_base,Enemy_delay,[home_base],onlyBaseenemy,Player1,collision,100,5))
             ecount+=1
             return
         }
@@ -1424,7 +1423,6 @@ function checkdeath(){
     if(bossspawned){
         if(bossarray[bosskilled].health<0){
             score+=1000
-            console.log('hello')
             bossspawned=false
             bosscount=0
             bosskilled+=1
@@ -1469,7 +1467,7 @@ function drawgamedeets(){
     ctx.stroke()
     ctx.closePath()
     diff=(y-x/100-home_base.y+home_base.radius/2)/3
-    ctx.font=  '100px Courier'
+    ctx.font=  window.innerWidth/74.6 +'px Courier'
     ctx.fillStyle='white'
     ctx.fillText("Health:",x/50, home_base.y+home_base.radius/1.2)
     ctx.fillText(`${Math.trunc(Player1.health)}`,diff*2 +x/50, home_base.y+home_base.radius/1.2)
@@ -1479,37 +1477,16 @@ function drawgamedeets(){
     ctx.fillText(`${score}`,x-x/10,home_base.y+home_base.radius/1.2)
     for(let i=0;i<5;i++){
         if(lives[i]==1){
-            ctx.drawImage(lifeyes,x/2+10*x/100+(i*160), y/1.2+x/24, 150,150)
+            ctx.drawImage(lifeyes,x/2+10*x/100+(i*x/50), y/1.2+x/24, x/50,x/50)
         }
         else{
-            ctx.drawImage(lifeno,x/2+10*x/100+(i*160), y/1.2+x/24, 150,150)
+            ctx.drawImage(lifeno,x/2+10*x/100+(i*x/50), y/1.2+x/24, x/50,x/50)
         }
     }
 
 }
 
-function drawborder(){
-    let gradient1 = ctx.createLinearGradient(0,0,0,window.innerWidth/100)
-    gradient1.addColorStop(0, 'black')
-    gradient1.addColorStop(1, 'gray')
-    ctx.fillStyle=gradient1
-    ctx.fillRect(window.innerWidth/100,0,window.innerWidth*0.99,window.innerWidth/100)
-    let gradient2 = ctx.createLinearGradient(0,window.innerHeight-window.innerWidth/100,0,window.innerHeight)
-    gradient2.addColorStop(0, 'gray')
-    gradient2.addColorStop(1, 'black')
-    ctx.fillStyle=gradient2
-    ctx.fillRect(window.innerWidth/100,window.innerHeight-window.innerWidth/100,window.innerWidth,window.innerHeight)
-    let gradient3 = ctx.createLinearGradient(0,0,window.innerWidth/100,0)
-    gradient3.addColorStop(0, 'black')
-    gradient3.addColorStop(1, 'gray')
-    ctx.fillStyle=gradient3
-    ctx.fillRect(0,window.innerWidth/100,window.innerWidth/100,window.innerHeight-window.innerWidth/100)
-    let gradient4=ctx.createLinearGradient(window.innerWidth*0.99,0,window.innerWidth,0)
-    gradient4.addColorStop(0, 'black')
-    gradient4.addColorStop(1, 'gray')
-    ctx.fillStyle='red'
-    ctx.fillRect(window.innerWidth-window.innerWidth/100,window.innerWidth/100,window.innerWidth,window.innerHeight-window.innerWidth/100)
-}
+
 
 function generateStars(numStars) {
     const stars = [];
@@ -1549,7 +1526,7 @@ function drawStars(stars) {
 
     stars.forEach(star => {
         ctx.beginPath();
-        let radius =Math.random() * 2.5
+        let radius =Math.random() * 1.5
         let opacity=Math.random() * 0.5 + 0.5
         ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(' + value1+ ","+ value2+ "," +value3 +","+ `${opacity})`
@@ -1604,8 +1581,8 @@ window.addEventListener('click',getcoord)
 window.addEventListener('onmouseover',mousecoordinate)
 function getcoord(e){
     if(e.button===0){
-        xcoord=e.clientX
-        ycoord=e.clientY
+        xcoord=e.clientX+x/100
+        ycoord=e.clientY+x/100
     }
     checkfrontpage()
     instructions()
@@ -1620,24 +1597,24 @@ function checkfrontpage(){
     let height=window.innerHeight
     let width=window.innerWidth
     if(start==0){
-        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20 && ycoord<11* height/20 +150 ){
+        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20 && ycoord<11* height/20 +x/49.73 ){
             start=1
         }
     }
     if(start==0 || pause){
         //instructions
-        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20+175 && ycoord<11* height/20 +325){
+        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20+x/42.68 && ycoord<11* height/20 +x/42.68+x/49.73){
             instructionscalled=1
         }
         //leaderboard
-        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20+350 && ycoord<11* height/20 +500){
+        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20+x/21.3 && ycoord<11*height/20+x/21.3+x/49.73){
             leaderboardcalled=1
         }
            
     }
      
     if(start!=0 && pause){
-        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20 && ycoord<11* height/20 +150 ){
+        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20 && ycoord<11* height/20 +x/49.73 ){
             hold+=1
             playgame()
         }
@@ -1663,7 +1640,7 @@ function checkfrontpage(){
     
     if(gameover){
         console.log('hello')
-        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*height/20+175 && ycoord<11* height/20 +325){
+        if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*y/20+x/42.6 && ycoord<11*y/20+x/42.6+x/49.3){
             gameclick=1
             console.log('hello')
         }
@@ -1696,38 +1673,38 @@ function staticscreen(){
     ctx.fillStyle='rgba(128,128,128,0.25)'
     ctx.fillRect(width/4,height/4,width/2,height/2)
     ctx.fillStyle='blue'
-    ctx.font='bold 200px retro'
+    ctx.font=window.innerWidth/37 +'px retro'
     ctx.fillText('Droid Defense',width/3 ,height/2,width/3)
     ctx.lineWidth=x/500
-   
+    console.log('hello')
     //start
     if(start==0){
         ctx.strokeStyle='rgba(0,0,255,0.75)'
-        ctx.strokeRect(width/3,11*height/20,width/3,150)
-        ctx.font='100px retro'
+        ctx.strokeRect(width/3,11*height/20,width/3,x/49.73)
+        ctx.font=window.innerWidth/74+'px retro'
         ctx.fillStyle='rgba(0,0,255,0.50)'
-        ctx.fillText('Start Game',12.5+width/3+10,11*height/20+140,width/3-25)
+        ctx.fillText('Start Game',x/596.8+width/3+x/746,11*height/20+x/53.28,width/3-x/298)
     }
     else{
         ctx.strokeStyle='rgba(0,0,255,0.75)'
-        ctx.strokeRect(width/3,11*height/20,width/3,150)
-        ctx.font='100px retro'
+        ctx.strokeRect(width/3,11*height/20,width/3,x/50)
+        ctx.font=window.innerWidth/74+'px retro'
         ctx.fillStyle='rgba(0,0,255,0.50)'
-        ctx.fillText('Resume',12.5+width/3+10,11*height/20+140,width/3-25)
+        ctx.fillText('Resume',x/596.8+width/3+x/746,11*height/20+x/53.28,width/3-x/298)
     }
    
     //instructions
     ctx.strokeStyle='rgba(0,0,255,0.75)'
-    ctx.strokeRect(width/3,11*height/20+175,width/3,150)
-    ctx.font='100px retro'
+    ctx.strokeRect(width/3,11*height/20+x/42.68,width/3,x/49.73)
+    ctx.font=window.innerWidth/74+'px retro'
     ctx.fillStyle='rgba(0,0,255,0.50)'
-    ctx.fillText('Instructions',12.5+width/3+10,11*height/20+315,width/3-25)
+    ctx.fillText('Instructions',x/596.8+width/3+x/746,11*height/20+x/23.68,width/3-x/298)
     //leaderboard
     ctx.strokeStyle='rgba(0,0,255,0.75)'
-    ctx.strokeRect(width/3,11*height/20+350,width/3,150)
-    ctx.font='100px retro'
+    ctx.strokeRect(width/3,11*height/20+x/21.3,width/3,x/49.73)
+    ctx.font=window.innerWidth/74+'px retro'
     ctx.fillStyle='rgba(0,0,255,0.50)'
-    ctx.fillText('LeaderBoard',12.5+width/3+10,11*height/20+490,width/3-25)
+    ctx.fillText('LeaderBoard',x/596.8+width/3+x/746,11*height/20+x/15.22,width/3-x/298)
     
     
 }
@@ -1795,21 +1772,21 @@ function leaderboarddisp(){
         ctx.fillRect(x/8,y/8,6*x/8,6*y/8)
         ctx.strokeRect(7*x/16,6*y/8,x/8,y/16)
         ctx.fillStyle='blue'
-        ctx.font='100px retro'
+        ctx.font=x/74+'px retro'
         ctx.fillText('LeaderBoard',x/4,y/4,x/2)
         for(let i=0;i<5;i++){
-            ctx.font='75px retro'
+            ctx.font=x/99.4+'px retro'
             ctx.fillStyle='rgba(255,255,255,0.75)'
             ctx.fillText(`${i+1}`,x/4,(i+4)*y/12)
             ctx.fillText(`${leadership[i]}`,5*x/8,(i+4)*y/12)
         }
         if(start==0){
             ctx.fillStyle='blue'
-            ctx.fillText('Back',7*x/16+20,25*y/32+20,x/8-20)
+            ctx.fillText('Back',7*x/16+x/373,25*y/32+x/373,x/8-x/373)
         }
         else{
             ctx.fillStyle='blue'
-            ctx.fillText('Resume',7*x/16+20,25*y/32+20,x/8-20)
+            ctx.fillText('Resume',7*x/16+x/373,25*y/32+x/373,x/8-x/373)
         }
     }
 }
@@ -1833,7 +1810,8 @@ function resetvariables(){
     enemy3=[]
     enemy4=[]
     max_health=100
-    Player1 = new player(x/2,y/2,x/50,x/100,x/50,10,x-(x/100),home_base.y+home_base.radius/3,x/100,x/100,home_base,collision,max_health,enemyarray,damage,100)
+    playerspeed=window.innerWidth/746
+    Player1 = new player(x/2,y/2,x/50,x/100,x/50,playerspeed,x-(x/100),home_base.y+home_base.radius/3,x/100,x/100,home_base,collision,max_health,enemyarray,damage,100)
     firsttime=0
     Max_Count=10
     Max_melee=3
@@ -1844,7 +1822,6 @@ function resetvariables(){
     homecount=0
     bosscount=0
     bossspawned=false
-    boss_enemy= new boss(x/2,y/3,x/25,home_base,Player1,Boss_delay,2,collision,10)
     lives=[1,1,1,1,1]
     lifecount=5
     value1=255
@@ -1854,7 +1831,6 @@ function resetvariables(){
     boss_basehealth=1500
     basebossbullet=50
     basebosspellet=5
-    playerspeed=10
     letboss=0
     bossarray=[]
     tempmax=10
@@ -1945,8 +1921,8 @@ function gameoverscreen(){
     ctx.font=x/60+'px retro'
     ctx.fillText('GAME OVER',x/4,y/4,x/2)
     ctx.strokeStyle='rgba(0,0,255,0.75)'
-    ctx.strokeRect(x/3,11*y/20+175,x/3,150)
-    ctx.font='100px retro'
+    ctx.strokeRect(x/3,11*y/20+x/42.6,x/3,x/49.3)
+    ctx.font=x/74.6+'px retro'
     ctx.fillStyle='rgba(0,0,255,0.50)'
-    ctx.fillText('Play Again',12.5+x/3+10,11*y/20+315,x/3-25)
+    ctx.fillText('Play Again',x/596.8+x/3+x/746,11*y/20+x/23.68,x/3-x/298.4)
 }
