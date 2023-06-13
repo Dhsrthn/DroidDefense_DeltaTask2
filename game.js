@@ -1581,8 +1581,8 @@ window.addEventListener('click',getcoord)
 window.addEventListener('onmouseover',mousecoordinate)
 function getcoord(e){
     if(e.button===0){
-        xcoord=e.clientX+x/100
-        ycoord=e.clientY+x/100
+        xcoord=e.clientX
+        ycoord=e.clientY
     }
     checkfrontpage()
     instructions()
