@@ -1,6 +1,6 @@
 # delta_2_droid
 
-(works only on live server properly for some reason - figuring out)
+(made it so it works always :) and not just vscode liveserver)
 
 Space shooter game.
 Has three powerups.
