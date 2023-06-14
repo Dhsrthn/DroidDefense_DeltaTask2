@@ -14,7 +14,7 @@ right click - hold to charge and release to shoot healing bullet which can heal 
 R - hold to charge and release to self heal.
 (uses regen power to heal, which will be gianed from dealing damage to enemies).
 
-#spawns boss everytime 5 Class4 enemies are killed
+## spawns boss everytime 5 Class4 enemies are killed
 (each time a little bit stronger than before).
 
 
