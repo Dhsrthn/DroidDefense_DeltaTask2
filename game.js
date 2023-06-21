@@ -717,7 +717,7 @@ class enemy_bullet{
 }
 
 class homing_melee{
-    constructor(x,y,home,angle,radius,damage,){
+    constructor(x,y,home,angle,radius,damage){
         this.inix=x
         this.iniy=y
         this.x=Math.random()*(window.innerWidth)
@@ -726,7 +726,7 @@ class homing_melee{
         this.angle=angle
         this.radius=radius
         this.c=1
-        this.speed=window.innerWidth/3730
+        this.speed=window.innerWidth/1600
         this.health=100
         this.class=3
         this.damage=damage
@@ -1355,7 +1355,7 @@ function generatespawn(){
         if(melee_count<3){
             let array=randomlocation()
             ranangle=(Math.random()+1)* Math.PI
-            enemy3.push(new homing_melee(array[0],array[1],home_base,ranangle,x/50,0.03))
+            enemy3.push(new homing_melee(array[0],array[1],home_base,ranangle,x/50,0.07))
             melee_count+=1
             ecount+=1
             return
