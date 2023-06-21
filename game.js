@@ -1197,6 +1197,7 @@ let start=0
 
 
 function main(){
+    console.log(window.innerHeight,window.innerWidth)
    if(gameover){
     highscoreupdate()
     gameoverscreen()
@@ -1675,6 +1676,7 @@ function staticscreen(){
     ctx.fillRect(width/4,height/4,width/2,height/2)
     ctx.fillStyle='blue'
     ctx.font=window.innerWidth/37 +'px retro'
+    ctx.font=window.innerWidth/37 +'px retro'
     ctx.fillText('Droid Defense',width/3 ,height/2,width/3)
     ctx.lineWidth=x/500
     //start
@@ -1833,8 +1835,8 @@ function resetvariables(){
     basebosspellet=5
     letboss=0
     bossarray=[]
-    tempmax=10
-    tempmel=3
+    tempmax=7
+    tempmel=2
     gameclick=0
     spawned=false
     spawncheck=0
