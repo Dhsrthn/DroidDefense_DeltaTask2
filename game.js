@@ -1197,7 +1197,6 @@ let start=0
 
 
 function main(){
-    console.log(window.innerHeight,window.innerWidth)
    if(gameover){
     highscoreupdate()
     gameoverscreen()
@@ -1313,7 +1312,11 @@ function gamepretty(){
         )
     })
     if(bossspawned){
-        bossarray[bosskilled].draw()
+        console.log(bossarray.length)
+        for(let i=0;i<bossarray.length;i++){
+            console.log(bossarray[i].health)
+        }
+        bossarray[0].draw()
         Max_Count=6
         Max_melee=2
     }
@@ -1421,7 +1424,7 @@ function checkdeath(){
         Player1.health=Player1.maxhealth
     }
     if(bossspawned){
-        if(bossarray[bosskilled].health<0){
+        if(bossarray[0].health<0){
             score+=1000
             bossspawned=false
             bosscount=0
@@ -1444,6 +1447,7 @@ function checkdeath(){
             Player1.healable+=2
             Player1.lasertimer+=50
             letboss=0
+            bossarray=[]
         }
     }
     
@@ -1587,7 +1591,6 @@ function getcoord(e){
     checkfrontpage()
     instructions()
     leaderboarddisp()
-    console.log(gameover)
 }
 
 let instructionscalled=0
@@ -1639,10 +1642,8 @@ function checkfrontpage(){
     }
     
     if(gameover){
-        console.log('hello')
         if(xcoord>width/3 && xcoord<2*width/3 && ycoord>11*y/20+x/42.6 && ycoord<11*y/20+x/42.6+x/49.3){
             gameclick=1
-            console.log('hello')
         }
         if(gameclick==1){
             resetvariables()
@@ -1676,7 +1677,6 @@ function staticscreen(){
     ctx.font=window.innerWidth/37 +'px retro'
     ctx.fillText('Droid Defense',width/3 ,height/2,width/3)
     ctx.lineWidth=x/500
-    console.log('hello')
     //start
     if(start==0){
         ctx.strokeStyle='rgba(0,0,255,0.75)'
