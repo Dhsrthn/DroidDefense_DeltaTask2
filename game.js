@@ -1197,7 +1197,7 @@ let start=0
 
 
 function main(){
-    console.log(window.innerHeight,window.innerWidth)
+
    if(gameover){
     highscoreupdate()
     gameoverscreen()
@@ -1313,10 +1313,6 @@ function gamepretty(){
         )
     })
     if(bossspawned){
-        console.log(bossarray.length)
-        for(let i=0;i<bossarray.length;i++){
-            console.log(bossarray[i].health)
-        }
         bossarray[0].draw()
         Max_Count=6
         Max_melee=2
