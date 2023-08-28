@@ -1,6 +1,8 @@
 # DroidDefense
 
-(made it so it works always :) and not just vscode liveserver)
+
+
+https://dhsrthn.github.io/DroidDefense_DeltaTask2/
 
 Space shooter game.
 Has three powerups.
